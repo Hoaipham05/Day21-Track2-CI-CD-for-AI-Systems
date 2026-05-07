@@ -11,9 +11,9 @@ Buổi: Day 21 - CI/CD cho AI Systems
 Sau khi hoàn thành lab này, bạn có khả năng:
 
 1. Thiết lập quá trình theo dõi thí nghiệm máy học bằng MLflow trên máy tính cá nhân.
-2. Quản lý và phiên bản hóa dữ liệu bằng DVC với cloud object storage (GCP / AWS / Azure) làm remote.
+2. Quản lý và phiên bản hóa dữ liệu bằng DVC với cloud object storage (AWS / GCP / Azure) làm remote.
 3. Xây dựng pipeline CI/CD hoàn chỉnh trên GitHub Actions với ba giai đoạn: kiểm thử, huấn luyện, triển khai.
-4. Triển khai mô hình lên máy chủ ảo trên cloud (GCE / EC2 / Azure VM) dưới dạng REST API bằng FastAPI.
+4. Triển khai mô hình lên máy chủ ảo trên cloud (EC2 / GCE / Azure VM) dưới dạng REST API bằng FastAPI.
 5. Mô phỏng quy trình huấn luyện liên tục: bổ sung dữ liệu mới và kích hoạt pipeline hoàn toàn tự động.
 
 ---
@@ -50,7 +50,7 @@ Phần mềm cần cài đặt trên máy tính cá nhân:
 
 - Python 3.10 trở lên
 - Git và tài khoản GitHub (tạo một repo public mới, chưa có nội dung)
-- Tài khoản cloud (chọn một trong ba: GCP, AWS, hoặc Azure — gói miễn phí/trial đủ dùng cho lab này)
+- Tài khoản cloud (chọn một trong ba: AWS, GCP, hoặc Azure — gói miễn phí/trial đủ dùng cho lab này)
 - CLI của cloud provider đã chọn (xem hướng dẫn cài đặt chi tiết tại tasks/buoc-2.md)
 
 Kiểm tra cài đặt:
@@ -59,8 +59,8 @@ Kiểm tra cài đặt:
 python --version     # Python 3.10.x trở lên
 git --version
 # Kiểm tra CLI của cloud provider đã chọn (một trong ba):
-gcloud --version     # GCP
 aws --version        # AWS
+gcloud --version     # GCP
 az --version         # Azure
 ```
 
@@ -195,15 +195,15 @@ __pycache__/
 mlflow==2.13.0
 scikit-learn==1.4.2
 pandas==2.2.2
-# DVC extra theo provider: [gs]=GCP, [s3]=AWS, [azure]=Azure
-dvc[gs]==3.50.1
+# DVC extra theo provider: [s3]=AWS, [gs]=GCP, [azure]=Azure
+dvc[s3]==3.50.1
 pathspec==0.11.2
 pytest==8.2.0
 fastapi==0.111.0
 uvicorn==0.29.0
 joblib==1.4.2
-# Cloud SDK theo provider: google-cloud-storage (GCP), boto3 (AWS), azure-storage-blob (Azure)
-google-cloud-storage==2.16.0
+# Cloud SDK theo provider: boto3 (AWS), google-cloud-storage (GCP), azure-storage-blob (Azure)
+boto3==1.34.113
 pyyaml==6.0.1
 ```
 
