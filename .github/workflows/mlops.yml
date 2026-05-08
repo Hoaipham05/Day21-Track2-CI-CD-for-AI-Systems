@@ -65,8 +65,15 @@ jobs:
 
       - name: Configure DVC remote
         run: |
-          dvc remote add -d myremote s3://${S3_BUCKET}/dvc
-          dvc remote modify myremote region ${AWS_DEFAULT_REGION}
+          # Make configuring DVC remote idempotent so workflow doesn't fail
+          if dvc remote list | grep -q '^myremote\b'; then
+            echo "myremote already exists, updating URL and region"
+            dvc remote modify myremote url s3://${S3_BUCKET}/dvc || true
+            dvc remote modify myremote region ${AWS_DEFAULT_REGION} || true
+          else
+            dvc remote add -d myremote s3://${S3_BUCKET}/dvc
+            dvc remote modify myremote region ${AWS_DEFAULT_REGION}
+          fi
 
       - name: Pull data with DVC
         run: dvc pull data/train_phase1.csv.dvc data/eval.csv.dvc
