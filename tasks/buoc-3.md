@@ -13,7 +13,7 @@ Trước khi thực hiện, hãy đọc lại workflow trigger trong `.github/wo
 ```yaml
 on:
   push:
-    branches: [main]
+    branches: [main, master]
     paths:
       - 'data/**.dvc'    # <- Pipeline được kích hoạt khi file .dvc thay đổi
       - 'src/**.py'
@@ -37,6 +37,8 @@ Kết quả mong đợi:
 ```
 Cập nhật dữ liệu: 2998 -> 5996 mẫu
 ```
+
+Lưu ý: nếu chạy `add_new_data.py` nhiều lần, `train_phase2.csv` sẽ tiếp tục được nối thêm vào `train_phase1.csv`, nên tổng số mẫu sẽ tăng tiếp (ví dụ 5996 -> 8994).
 
 Xác nhận kích thước dữ liệu mới:
 
@@ -65,7 +67,7 @@ git commit -m "data: bổ sung 2998 mẫu dữ liệu mới (train_phase2)"
 dvc push
 
 # 4. Đẩy git commit lên GitHub - thao tác này kích hoạt GitHub Actions
-git push origin main
+git push origin master
 ```
 
 Tại sao phải `dvc push` trước `git push`? Nếu git push được thực hiện trước, GitHub Actions sẽ bắt đầu và cố gắng `dvc pull` dữ liệu mới khi dữ liệu đó chưa có trên cloud storage, dẫn đến lỗi.
@@ -88,7 +90,7 @@ Theo dõi từng job:
 
 1. **Unit Test** - unit tests chạy trên code hiện tại (không thay đổi so với Bước 2).
 2. **Train** - CI runner pull tập dữ liệu mới (5996 mẫu) từ cloud storage, huấn luyện lại mô hình, upload `model.pkl` mới lên cloud storage.
-3. **Eval** - kiểm tra accuracy >= 0.70, nếu không đạt thì pipeline dừng tại đây.
+3. **Eval** - kiểm tra accuracy theo ngưỡng đang cấu hình trong workflow (repo hiện tại đang dùng 0.55), nếu không đạt thì pipeline dừng tại đây.
 4. **Deploy** - nếu eval gate qua, service trên VM được restart với mô hình mới.
 
 ---
@@ -155,7 +157,7 @@ dvc push
 
 **Accuracy ở Bước 3 thấp hơn Bước 2**
 
-Đây là tình huống bình thường có thể xảy ra do dữ liệu mới thêm nhiều nhiễu hơn. Model vẫn được triển khai nếu accuracy vẫn >= 0.70. Nếu accuracy dưới ngưỡng, thì bước deploy sẽ bị chặn - đây là hành vi mong muốn của eval gate.
+Đây là tình huống bình thường có thể xảy ra do dữ liệu mới thêm nhiều nhiễu hơn. Model vẫn được triển khai nếu accuracy vẫn >= ngưỡng đang cấu hình trong workflow. Nếu accuracy dưới ngưỡng, thì bước deploy sẽ bị chặn - đây là hành vi mong muốn của eval gate.
 
 ---
 

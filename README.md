@@ -221,6 +221,20 @@ Bắt đầu từ [Bước 1](tasks/buoc-1.md).
 
 ---
 
+## Kết Quả Thực Tế (Repo Hiện Tại)
+
+- Pipeline CI/CD đã chạy thành công end-to-end cho commit dữ liệu mới:
+      - Commit: `7e3b6d0`
+      - Workflow: `MLOps Pipeline #6`
+      - Trạng thái: `Success` (Unit Test, Train, Eval, Deploy đều xanh)
+- API sau deploy phản hồi thành công:
+      - `GET /health` -> `{"status":"ok"}`
+      - `POST /predict` (12 features) -> ví dụ `{"prediction":0,"label":"thap"}`
+
+Ghi chú: workflow trong repo hiện tại trigger trên `master` và eval gate đang cấu hình theo ngưỡng trong `.github/workflows/mlops.yml`.
+
+---
+
 ## Rubric Chấm Điểm
 
 ### Tiêu chí chính (80 điểm)
