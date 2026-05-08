@@ -139,6 +139,29 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
+            set -e
+            cd ~/mlops-app
+            git fetch origin
+            git checkout master
+            git pull origin master
+
+            python3 - <<'EOF'
+            import os
+            import boto3
+
+            os.environ["AWS_ACCESS_KEY_ID"] = "${{ secrets.AWS_ACCESS_KEY_ID }}"
+            os.environ["AWS_SECRET_ACCESS_KEY"] = "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+            os.environ["AWS_DEFAULT_REGION"] = "${{ secrets.AWS_REGION }}"
+
+            bucket_name = "${{ secrets.CLOUD_BUCKET }}"
+            target = os.path.expanduser("~/models/model.pkl")
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+
+            client = boto3.client("s3")
+            client.download_file(bucket_name, "models/latest/model.pkl", target)
+            print("Downloaded latest model from S3.")
+            EOF
+
             sudo systemctl restart mlops-serve
             sleep 5
             curl -sf http://localhost:8000/health && echo "Health check passed." || exit 1

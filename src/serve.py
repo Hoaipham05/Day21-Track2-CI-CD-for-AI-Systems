@@ -6,26 +6,28 @@ import os
 
 app = FastAPI()
 
-S3_BUCKET = os.environ["S3_BUCKET"]
 S3_MODEL_KEY = "models/latest/model.pkl"
 MODEL_PATH = os.path.expanduser("~/models/model.pkl")
 
 
-def download_model():
+def download_model_if_needed():
     """
-    Tai file model.pkl tu S3 ve may khi server khoi dong.
+    Uu tien dung model cuc bo. Neu chua co model va co S3_BUCKET thi moi tai tu S3.
+    """
+    if os.path.exists(MODEL_PATH):
+        return
 
-    Ham nay duoc goi mot lan khi module duoc import. Su dung
-    AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY / AWS_DEFAULT_REGION de xac thuc
-    (duoc dat trong systemd service).
-    """
+    s3_bucket = os.getenv("S3_BUCKET")
+    if not s3_bucket:
+        raise RuntimeError("Khong tim thay model cuc bo va S3_BUCKET chua duoc cau hinh")
+
     os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
     client = boto3.client("s3")
-    client.download_file(S3_BUCKET, S3_MODEL_KEY, MODEL_PATH)
+    client.download_file(s3_bucket, S3_MODEL_KEY, MODEL_PATH)
     print("Model da duoc tai xuong tu S3.")
 
 
-download_model()
+download_model_if_needed()
 model = joblib.load(MODEL_PATH)
 
 
